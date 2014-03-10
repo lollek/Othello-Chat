@@ -16,14 +16,7 @@ IDLJ  = /usr/bin/idlj
 
 GENERATED = $(NAME)App
 
-all: 
-	-@ echo "  "
-	-@ echo "  make target             - build the project"
-	-@ echo "  make orbd|client|server - run the individual components"
-	-@ echo "  make clean              - clean temporary files"
-	-@ echo "  make clobber            - wipe everything that is generated"
-	-@ echo "  "
-
+all: target
 
 clean:
 	-@touch ./abc~ core

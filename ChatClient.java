@@ -50,8 +50,9 @@ public class ChatClient {
       String chat = chatImpl.say(cref, "\n  Hello....");
       System.out.println(chat);
 
-    } catch(Exception e)
-    System.out.println("ERROR : " + e);
-    e.printStackTrace(System.out);
+    } catch(Exception e) {
+      System.out.println("ERROR : " + e);
+      e.printStackTrace(System.out);
+    }
   }
 }

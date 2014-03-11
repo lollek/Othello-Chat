@@ -19,15 +19,13 @@ GENERATED = $(NAME)App
 all: target
 
 clean:
-	-@touch ./abc~ core
-	-@rm -f *~ core
+	$(RM) *~ core
 
 clobber: clean
-	-@touch ./abc.class 
-	-@rm -rf *.class $(GENERATED) orb.db
+	rm -rf *.class $(GENERATED) orb.db
 
 idl::
-	-$(IDLJ) -fall $(NAME).idl	
+	$(IDLJ) -fall $(NAME).idl
 
 c::
 	$(JAVAC) $(NAME)Client.java  $(NAME)App/*.java
@@ -35,15 +33,11 @@ c::
 s::
 	$(JAVAC) $(NAME)Server.java $(NAME)App/*.java
 
-target::
-	make clobber
-	make idl
-	make c
-	make s
+target: clobber idl c s
 
 orbd:: 
-	-@echo "Starting orbd"
-	-@rm -rf ./orb.db
+	@echo "Starting orbd"
+	$(RM) orb.db
 	orbd -ORBInitialPort $(NAMESERVERPORT) -ORBInitialHost localhost
 
 server::
@@ -52,3 +46,5 @@ server::
 client::
 	$(JAVA) $(NAME)Client -ORBInitialPort $(NAMESERVERPORT) -ORBInitialHost localhost
 
+sync:
+	rsync -rz . cloudberry:~/tdts04-othello

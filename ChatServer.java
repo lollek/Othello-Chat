@@ -9,9 +9,20 @@ import java.util.*;
 
 class ChatImpl extends ChatPOA {
   private ORB orb;
+
+  // Client-list
   private List<ChatCallback> callback_list = new ArrayList<ChatCallback>();
   private List<String> nick_list = new ArrayList<String>();
   private List<Character> team_list = new ArrayList<Character>();
+
+  // Othello
+  private final int board_size = 8;
+  private char[] board = new char[board_size * board_size];
+
+  public ChatImpl() {
+    super();
+    resetOthelloBoard();
+  }
 
   public void setORB(ORB orb_val) {
     orb = orb_val;
@@ -22,6 +33,53 @@ class ChatImpl extends ChatPOA {
       callback_list.get(i).callback(msg);
     }
   }
+
+  private void resetOthelloBoard() {
+    for (int i = 0; i < board_size; ++i) {
+      for (int j = 0; j < board_size; ++j) {
+        board[j + i*board_size] = 0;
+      }
+    }
+    board[(board_size/2) -1 + (board_size/2)*board_size] = 'x';
+    board[(board_size/2) + (board_size/2)*board_size] = 'o';
+    board[(board_size/2) -1 + (board_size/2 -1)*board_size] = 'o';
+    board[(board_size/2) + (board_size/2 -1)*board_size] = 'x';
+  }
+
+  private String othelloBoardToString() {
+    StringBuffer strbuf = new StringBuffer();
+    for (int i = 0; i < board_size; ++i) {
+
+      // Top border
+      if (i == 0) {
+        strbuf.append("  ");
+        for (int j = 0; j < board_size; ++j) {
+          strbuf.append((char)('a' + j));
+          strbuf.append(" ");
+        }
+        strbuf.append("\n");
+      }
+
+      // Game board
+      strbuf.append(i + 1);
+      strbuf.append("|");
+      for (int j = 0; j < board_size; ++j) {
+        char chip = board[j + i*board_size];
+        strbuf.append(chip == 0 ? ' ' : chip);
+        strbuf.append("|");
+      }
+      strbuf.append("\n");
+
+      // Divider
+      strbuf.append(" ");
+      for (int j = 0; j < board_size; ++j) {
+        strbuf.append("--");
+      }
+      strbuf.append("-\n");
+    }
+    return strbuf.toString();
+  }
+
 
   public boolean say(ChatCallback callobj, String msg) {
     int userindex = callback_list.indexOf(callobj);
@@ -97,11 +155,14 @@ class ChatImpl extends ChatPOA {
 
     // Request the board
     } else if (cmd.equals("board")) {
+      callobj.callback(othelloBoardToString());
+      return true;
 
     // Put chip
     } else if (cmd.length() == 2 &&
                'a' <= cmd.charAt(0) && cmd.charAt(0) <= 'h' && 
                '1' <= cmd.charAt(1) && cmd.charAt(1) <= '8') {
+      return true;
 
     // Bad command
     } else {
@@ -111,7 +172,6 @@ class ChatImpl extends ChatPOA {
                       +"othello b5 - put a chip on b5\n");
       return false;
     }
-    return false;
   }
 }
 

@@ -7,5 +7,6 @@ module ChatApp {
       boolean join(in ChatCallback objref, in string nickname);
       boolean leave(in ChatCallback objref);
       boolean list(in ChatCallback objref);
+      boolean othello(in ChatCallback objref, in string cmd);
    };
 };

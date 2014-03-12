@@ -59,7 +59,7 @@ public class ChatClient {
                         +"join username - join as username\n"
                         +"post text to post - write text to the chat\n"
                         +"list - list logged on users\n"
-                        +"leave - leave the chat");
+                        +"leave - leave the chat\n");
       boolean has_joined = false;
       for (;;) {
         try {
@@ -69,6 +69,7 @@ public class ChatClient {
             case "leave": chatImpl.leave(cref); break;
             case "list": chatImpl.list(cref); break;
             case "post": chatImpl.say(cref, line[1]); break;
+            case "othello": chatImpl.othello(cref, line[1]); break;
             default: System.out.println("Bad command"); break;
           }
         } catch (java.lang.ArrayIndexOutOfBoundsException e) {

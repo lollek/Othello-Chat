@@ -11,6 +11,7 @@ class ChatImpl extends ChatPOA {
   private ORB orb;
   private List<ChatCallback> callback_list = new ArrayList<ChatCallback>();
   private List<String> nick_list = new ArrayList<String>();
+  private List<Character> team_list = new ArrayList<Character>();
 
   public void setORB(ORB orb_val) {
     orb = orb_val;
@@ -44,6 +45,7 @@ class ChatImpl extends ChatPOA {
     } else {
       callback_list.add(callobj);
       nick_list.add(nickname);
+      team_list.add('0');
       broadcast(nickname + " has joined");
       return true;
     }
@@ -55,6 +57,7 @@ class ChatImpl extends ChatPOA {
       broadcast(nick_list.get(userindex) + " has left");
       callback_list.remove(userindex);
       nick_list.remove(userindex);
+      team_list.remove(userindex);
       callobj.callback("Server: Byebye!");
       return true;
     }
@@ -72,6 +75,42 @@ class ChatImpl extends ChatPOA {
       return true;
     }
     callobj.callback("Server: Please join before asking for a list");
+    return false;
+  }
+
+  public boolean othello(ChatCallback callobj, String cmd) {
+    int userindex = callback_list.indexOf(callobj);
+
+    // Join the X team
+    if (cmd.length() == 1 &&
+        (cmd.charAt(0) == 'x' || cmd.charAt(0) == 'X')) {
+      team_list.set(userindex, 'x');
+      broadcast(nick_list.get(userindex) + " has joined team X");
+      return true;
+
+    // Join the O team
+    } else if (cmd.length() == 1 &&
+               (cmd.charAt(0) == 'o' || cmd.charAt(0) == 'O')) {
+      team_list.set(userindex, 'o');
+      broadcast(nick_list.get(userindex) + " has joined team O");
+      return true;
+
+    // Request the board
+    } else if (cmd.equals("board")) {
+
+    // Put chip
+    } else if (cmd.length() == 2 &&
+               'a' <= cmd.charAt(0) && cmd.charAt(0) <= 'h' && 
+               '1' <= cmd.charAt(1) && cmd.charAt(1) <= '8') {
+
+    // Bad command
+    } else {
+      callobj.callback("Othello commands:\n"
+                      +"othello x/o - join the game as X or O\n"
+                      +"othello board - draw board\n"
+                      +"othello b5 - put a chip on b5\n");
+      return false;
+    }
     return false;
   }
 }

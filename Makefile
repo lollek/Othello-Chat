@@ -47,4 +47,4 @@ client::
 	$(JAVA) $(NAME)Client -ORBInitialPort $(NAMESERVERPORT) -ORBInitialHost localhost
 
 sync:
-	rsync -rz . cloudberry:~/tdts04-othello
+	rsync -rz . iix-cloudberry:~/tdts04-othello

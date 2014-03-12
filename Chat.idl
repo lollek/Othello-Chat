@@ -3,6 +3,7 @@ module ChatApp {
       void callback(in string message);
    };
    interface Chat {
-      string say(in ChatCallback objref, in string message);
+      boolean say(in ChatCallback objref, in string message);
+      boolean join(in ChatCallback objrer, in string nickname);
    };
 };

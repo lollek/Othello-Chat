@@ -1,3 +1,5 @@
+import java.io.*;
+
 import ChatApp.*; // The package containing our stubs
 import org.omg.CosNaming.*; // HelloClient will use the naming service.
 import org.omg.CosNaming.NamingContextPackage.*;
@@ -47,9 +49,30 @@ public class ChatClient {
       ChatCallback cref = ChatCallbackHelper.narrow(ref);
 
       // Application code goes below
-      String chat = chatImpl.say(cref, "\n  Hello....");
-      System.out.println(chat);
+      BufferedReader stdin =
+        new BufferedReader(new InputStreamReader(System.in));
+      String[] line;
 
+      // Print Hello
+      System.out.println("Hello!\n"
+                        +"Available commands:\n"
+                        +"join username - join as username\n"
+                        +"post text to post - write text to the chat\n");
+      for (;;) {
+        try {
+          line = stdin.readLine().split(" ", 2);
+          switch(line[0]) {
+            case "join": chatImpl.join(cref, line[1]); break;
+            case "post": chatImpl.say(cref, line[1]); break;
+            default: System.out.println("Bad command!"); break;
+          }
+        } catch (java.lang.ArrayIndexOutOfBoundsException e) {
+          System.out.println("Usage: command argument");
+        } catch (java.lang.NullPointerException e) {
+          System.out.println("Byebye!");
+          System.exit(0);
+        }
+      }
     } catch(Exception e) {
       System.out.println("ERROR : " + e);
       e.printStackTrace(System.out);

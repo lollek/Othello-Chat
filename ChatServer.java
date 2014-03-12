@@ -121,7 +121,7 @@ class ChatImpl extends ChatPOA {
                    +team_list.get(userindex) + ") put a chip on " + x + y);
           return true;
         } else {
-          callobj.callback("Server: " + x + y + " is occupied");
+          callobj.callback("Server: Bad move");
           return false;
         }
       }

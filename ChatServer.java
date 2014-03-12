@@ -14,15 +14,7 @@ class ChatImpl extends ChatPOA {
   private List<ChatCallback> callback_list = new ArrayList<ChatCallback>();
   private List<String> nick_list = new ArrayList<String>();
   private List<Character> team_list = new ArrayList<Character>();
-
-  // Othello
-  private final int board_size = 8;
-  private char[] board = new char[board_size * board_size];
-
-  public ChatImpl() {
-    super();
-    resetOthelloBoard();
-  }
+  private Othello othello = new Othello(8);
 
   public void setORB(ORB orb_val) {
     orb = orb_val;
@@ -33,71 +25,6 @@ class ChatImpl extends ChatPOA {
       callback_list.get(i).callback(msg);
     }
   }
-
-  private void resetOthelloBoard() {
-    for (int i = 0; i < board_size; ++i) {
-      for (int j = 0; j < board_size; ++j) {
-        board[j + i*board_size] = 0;
-      }
-    }
-    board[(board_size/2) -1 + (board_size/2)*board_size] = 'X';
-    board[(board_size/2) + (board_size/2)*board_size] = 'O';
-    board[(board_size/2) -1 + (board_size/2 -1)*board_size] = 'O';
-    board[(board_size/2) + (board_size/2 -1)*board_size] = 'X';
-  }
-
-  private boolean othelloPutChip(ChatCallback callobj, char x, char y) {
-    char written_x = x;
-    char written_y = y;
-    x -= 'a';
-    y -= '1';
-    if (board[x + y*board_size] == 0) {
-      int userindex = callback_list.indexOf(callobj);
-      board[x + y*board_size] = team_list.get(userindex);
-      broadcast(nick_list.get(userindex) + " (Team " 
-               +team_list.get(userindex) + ") put a chip on "
-               +written_x + written_y);
-      return true;
-    } else {
-      callobj.callback("Server: " + written_x + written_y + " is occupied");
-      return false;
-    }
-  }
-
-  private String othelloBoardToString() {
-    StringBuffer strbuf = new StringBuffer();
-    for (int i = 0; i < board_size; ++i) {
-
-      // Top border
-      if (i == 0) {
-        strbuf.append("  ");
-        for (int j = 0; j < board_size; ++j) {
-          strbuf.append((char)('a' + j));
-          strbuf.append(" ");
-        }
-        strbuf.append("\n");
-      }
-
-      // Game board
-      strbuf.append(i + 1);
-      strbuf.append("|");
-      for (int j = 0; j < board_size; ++j) {
-        char chip = board[j + i*board_size];
-        strbuf.append(chip == 0 ? ' ' : chip);
-        strbuf.append("|");
-      }
-      strbuf.append("\n");
-
-      // Divider
-      strbuf.append(" ");
-      for (int j = 0; j < board_size; ++j) {
-        strbuf.append("--");
-      }
-      strbuf.append("-\n");
-    }
-    return strbuf.toString();
-  }
-
 
   public boolean say(ChatCallback callobj, String msg) {
     int userindex = callback_list.indexOf(callobj);
@@ -121,7 +48,7 @@ class ChatImpl extends ChatPOA {
     } else {
       callback_list.add(callobj);
       nick_list.add(nickname);
-      team_list.add('0');
+      team_list.add((char)0);
       broadcast(nickname + " has joined");
       return true;
     }
@@ -177,27 +104,35 @@ class ChatImpl extends ChatPOA {
 
     // Request the board
     } else if (cmd.equals("board")) {
-      callobj.callback(othelloBoardToString());
+      callobj.callback(othello.toString());
       return true;
 
     // Put chip
-    } else if (cmd.length() == 2 &&
-         'a' <= cmd.charAt(0) && cmd.charAt(0) <= (char)('a' + board_size-1) && 
-         '1' <= cmd.charAt(1) && cmd.charAt(1) <= (char)('0' + board_size)) {
-      if (team_list.get(userindex) == '0') {
-        callobj.callback("Server: Please join a team before playing");
-        return false;
+    } else if (cmd.length() == 2) {
+      char x = cmd.charAt(0);
+      char y = cmd.charAt(1);
+      if ('a' <= x && x <= (char)('a' + othello.board_size() -1) &&
+          '1' <= y && y <= (char)('1' + othello.board_size() -1)) {
+        if (team_list.get(userindex) == 0) {
+          callobj.callback("Server: Please join a team before playing");
+          return false;
+        } else if (othello.putChip(team_list.get(userindex), x, y)) {
+          broadcast(nick_list.get(userindex) + " (Team " 
+                   +team_list.get(userindex) + ") put a chip on " + x + y);
+          return true;
+        } else {
+          callobj.callback("Server: " + x + y + " is occupied");
+          return false;
+        }
       }
-      return othelloPutChip(callobj, cmd.charAt(0), cmd.charAt(1));
+    }
 
     // Bad command
-    } else {
-      callobj.callback("Othello commands:\n"
-                      +"othello x/o - join the game as X or O\n"
-                      +"othello board - draw board\n"
-                      +"othello b5 - put a chip on b5\n");
-      return false;
-    }
+    callobj.callback("Othello commands:\n"
+                    +"othello x/o - join the game as X or O\n"
+                    +"othello board - draw board\n"
+                    +"othello b5 - put a chip on b5\n");
+    return false;
   }
 }
 

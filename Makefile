@@ -30,10 +30,13 @@ idl::
 c::
 	$(JAVAC) $(NAME)Client.java  $(NAME)App/*.java
 
+o:
+	$(JAVAC) Othello.java  $(NAME)App/*.java
+
 s::
 	$(JAVAC) $(NAME)Server.java $(NAME)App/*.java
 
-target: clobber idl c s
+target: clobber idl o c s
 
 orbd:: 
 	@echo "Starting orbd"

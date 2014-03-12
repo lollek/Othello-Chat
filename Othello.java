@@ -167,17 +167,21 @@ class Othello {
       return true;
 
     // Check diagonal
-    /*
-    } else if (x - i == y - j) {
-      for (int k = x; k != i; k += dx) {
-        if (other_team != board[x + dx*k + (y + dy*k)*board_size]) {
-          System.out.println("Same diagonal but..no");
+    } else if (x - i == y - j || x - i == -(y - j)) {
+      if (flip) {
+        board[x + y*board_size] = team;
+      }
+      for (int k = x - dx, l = y - dy; k != i; k -= dx, l -= dy) {
+        if (other_team != board[k + l*board_size]) {
           return false;
+        } else if (flip) {
+          board[k + l*board_size] = team;
         }
       }
       return true;
-    */
+    } else {
+      return false;
     }
-    return false;
+    //return false;
   }
 }

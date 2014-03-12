@@ -117,8 +117,14 @@ class ChatImpl extends ChatPOA {
           callobj.callback("Server: Please join a team before playing");
           return false;
         } else if (othello.putChip(team_list.get(userindex), x, y)) {
+          callobj.callback(othello.toString());
           broadcast(nick_list.get(userindex) + " (Team " 
                    +team_list.get(userindex) + ") put a chip on " + x + y);
+          if (othello.gameIsOver()) {
+            broadcast("Game is over. The score was " + othello.gameScore()
+                     +". The board has been reset");
+            othello.resetBoard();
+          }
           return true;
         } else {
           callobj.callback("Server: Bad move");

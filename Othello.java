@@ -12,6 +12,18 @@ class Othello {
     return this.board_size;
   }
 
+  public void resetBoard() {
+    for (int i = 0; i < board_size; ++i) {
+      for (int j = 0; j < board_size; ++j) {
+        board[j + i*board_size] = 0;
+      }
+    }
+    board[(board_size/2) -1 + (board_size/2)*board_size] = 'X';
+    board[(board_size/2) + (board_size/2)*board_size] = 'O';
+    board[(board_size/2) -1 + (board_size/2 -1)*board_size] = 'O';
+    board[(board_size/2) + (board_size/2 -1)*board_size] = 'X';
+  }
+
   public String toString() {
     StringBuffer strbuf = new StringBuffer();
     for (int i = 0; i < board_size; ++i) {
@@ -66,6 +78,40 @@ class Othello {
       }
     }
     return action_is_possible;
+  }
+
+  public String gameScore() {
+    int x = 0;
+    int o = 0;
+    for (char i = 0; i < board_size; ++i) {
+      for (char j = 0; j < board_size; ++j) {
+        switch (board[i + j*board_size]) {
+          case 'O': ++o; break;
+          case 'X': ++x; break;
+          default: break;
+        }
+      }
+    }
+    return String.format("X: %d/O: %d", x, o);
+  }
+
+  public boolean gameIsOver() {
+    for (char i = 0; i < board_size; ++i) {
+      for (char j = 0; j < board_size; ++j) {
+        if (board[i + j*board_size] != 0) {
+          for (char k = 0; k < board_size; ++k) {
+            for (char l = 0; l < board_size; ++l) {
+              if (board[k + l*board_size] == 0) {
+                if (rayCheck(false, k, l, i, j)) {
+                  return false;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return true;
   }
 
   private boolean rayCheck(boolean flip, char x, char y, char i, char j) {
@@ -133,17 +179,5 @@ class Othello {
     */
     }
     return false;
-  }
-
-  private void resetBoard() {
-    for (int i = 0; i < board_size; ++i) {
-      for (int j = 0; j < board_size; ++j) {
-        board[j + i*board_size] = 0;
-      }
-    }
-    board[(board_size/2) -1 + (board_size/2)*board_size] = 'X';
-    board[(board_size/2) + (board_size/2)*board_size] = 'O';
-    board[(board_size/2) -1 + (board_size/2 -1)*board_size] = 'O';
-    board[(board_size/2) + (board_size/2 -1)*board_size] = 'X';
   }
 }

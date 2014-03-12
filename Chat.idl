@@ -4,6 +4,8 @@ module ChatApp {
    };
    interface Chat {
       boolean say(in ChatCallback objref, in string message);
-      boolean join(in ChatCallback objrer, in string nickname);
+      boolean join(in ChatCallback objref, in string nickname);
+      boolean leave(in ChatCallback objref);
+      boolean list(in ChatCallback objref);
    };
 };

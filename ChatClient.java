@@ -57,19 +57,28 @@ public class ChatClient {
       System.out.println("Hello!\n"
                         +"Available commands:\n"
                         +"join username - join as username\n"
-                        +"post text to post - write text to the chat\n");
+                        +"post text to post - write text to the chat\n"
+                        +"list - list logged on users\n"
+                        +"leave - leave the chat");
+      boolean has_joined = false;
       for (;;) {
         try {
           line = stdin.readLine().split(" ", 2);
           switch(line[0]) {
-            case "join": chatImpl.join(cref, line[1]); break;
+            case "join": has_joined = chatImpl.join(cref, line[1]); break;
+            case "leave": chatImpl.leave(cref); break;
+            case "list": chatImpl.list(cref); break;
             case "post": chatImpl.say(cref, line[1]); break;
-            default: System.out.println("Bad command!"); break;
+            default: System.out.println("Bad command"); break;
           }
         } catch (java.lang.ArrayIndexOutOfBoundsException e) {
-          System.out.println("Usage: command argument");
+          System.out.println("Bad command");
         } catch (java.lang.NullPointerException e) {
-          System.out.println("Byebye!");
+          if (has_joined) {
+            chatImpl.leave(cref);
+          } else {
+            System.out.println("Byebye!");
+          }
           System.exit(0);
         }
       }

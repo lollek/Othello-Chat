@@ -16,13 +16,16 @@ class ChatImpl extends ChatPOA {
     orb = orb_val;
   }
 
+  private void broadcast(String msg) {
+    for (int i = 0; i < callback_list.size(); ++i) {
+      callback_list.get(i).callback(msg);
+    }
+  }
+
   public boolean say(ChatCallback callobj, String msg) {
     int userindex = callback_list.indexOf(callobj);
     if (userindex != -1) {
-      for (int i = 0; i < callback_list.size(); ++i) {
-        callback_list.get(i).callback(
-          nick_list.get(userindex) + ": " + msg);
-      }
+      broadcast(nick_list.get(userindex) + ": " + msg);
       return true;
     }
     callobj.callback("Server: Please join before writing!");
@@ -41,9 +44,35 @@ class ChatImpl extends ChatPOA {
     } else {
       callback_list.add(callobj);
       nick_list.add(nickname);
-      say(callobj, "Hello everyone! I just joined!");
+      broadcast(nickname + " has joined");
       return true;
     }
+  }
+
+  public boolean leave(ChatCallback callobj) {
+    int userindex = callback_list.indexOf(callobj);
+    if (userindex != -1) {
+      broadcast(nick_list.get(userindex) + " has left");
+      callback_list.remove(userindex);
+      nick_list.remove(userindex);
+      callobj.callback("Server: Byebye!");
+      return true;
+    }
+    callobj.callback("Server: Please join before leaving");
+    return false;
+  }
+
+  public boolean list(ChatCallback callobj) {
+    int userindex = callback_list.indexOf(callobj);
+    if (userindex != -1) {
+      callobj.callback("List of users");
+      for (int i = 0; i < nick_list.size(); ++i) {
+        callobj.callback(nick_list.get(i));
+      }
+      return true;
+    }
+    callobj.callback("Server: Please join before asking for a list");
+    return false;
   }
 }
 

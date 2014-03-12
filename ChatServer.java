@@ -40,10 +40,28 @@ class ChatImpl extends ChatPOA {
         board[j + i*board_size] = 0;
       }
     }
-    board[(board_size/2) -1 + (board_size/2)*board_size] = 'x';
-    board[(board_size/2) + (board_size/2)*board_size] = 'o';
-    board[(board_size/2) -1 + (board_size/2 -1)*board_size] = 'o';
-    board[(board_size/2) + (board_size/2 -1)*board_size] = 'x';
+    board[(board_size/2) -1 + (board_size/2)*board_size] = 'X';
+    board[(board_size/2) + (board_size/2)*board_size] = 'O';
+    board[(board_size/2) -1 + (board_size/2 -1)*board_size] = 'O';
+    board[(board_size/2) + (board_size/2 -1)*board_size] = 'X';
+  }
+
+  private boolean othelloPutChip(ChatCallback callobj, char x, char y) {
+    char written_x = x;
+    char written_y = y;
+    x -= 'a';
+    y -= '1';
+    if (board[x + y*board_size] == 0) {
+      int userindex = callback_list.indexOf(callobj);
+      board[x + y*board_size] = team_list.get(userindex);
+      broadcast(nick_list.get(userindex) + " (Team " 
+               +team_list.get(userindex) + ") put a chip on "
+               +written_x + written_y);
+      return true;
+    } else {
+      callobj.callback("Server: " + written_x + written_y + " is occupied");
+      return false;
+    }
   }
 
   private String othelloBoardToString() {
@@ -138,18 +156,22 @@ class ChatImpl extends ChatPOA {
 
   public boolean othello(ChatCallback callobj, String cmd) {
     int userindex = callback_list.indexOf(callobj);
+    if (userindex == -1) {
+      callobj.callback("Server: Please join before playing");
+      return false;
+    }
 
     // Join the X team
     if (cmd.length() == 1 &&
         (cmd.charAt(0) == 'x' || cmd.charAt(0) == 'X')) {
-      team_list.set(userindex, 'x');
+      team_list.set(userindex, 'X');
       broadcast(nick_list.get(userindex) + " has joined team X");
       return true;
 
     // Join the O team
     } else if (cmd.length() == 1 &&
                (cmd.charAt(0) == 'o' || cmd.charAt(0) == 'O')) {
-      team_list.set(userindex, 'o');
+      team_list.set(userindex, 'O');
       broadcast(nick_list.get(userindex) + " has joined team O");
       return true;
 
@@ -160,9 +182,13 @@ class ChatImpl extends ChatPOA {
 
     // Put chip
     } else if (cmd.length() == 2 &&
-               'a' <= cmd.charAt(0) && cmd.charAt(0) <= 'h' && 
-               '1' <= cmd.charAt(1) && cmd.charAt(1) <= '8') {
-      return true;
+         'a' <= cmd.charAt(0) && cmd.charAt(0) <= (char)('a' + board_size-1) && 
+         '1' <= cmd.charAt(1) && cmd.charAt(1) <= (char)('0' + board_size)) {
+      if (team_list.get(userindex) == '0') {
+        callobj.callback("Server: Please join a team before playing");
+        return false;
+      }
+      return othelloPutChip(callobj, cmd.charAt(0), cmd.charAt(1));
 
     // Bad command
     } else {
